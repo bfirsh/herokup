@@ -20,6 +20,6 @@ In a directory you want to upload:
 
     http://myapp.herokuapp.com deployed to Heroku
 
-If you've already got a Heroku app in the current directory or you've already run ``herokup`` once, the first argument is redundant.
+The app argument is not needed if you've already got a Heroku app in the current directory or ``herokup`` has already been run once.
 
 
