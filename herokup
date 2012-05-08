@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# https://github.com/bfirsh/herokup
+# Uploads stuff to Heroku that isn't in Git.
+
+shopt -s extglob
+
+export GIT_DIR=.git-heroku
+export GIT_WORK_TREE=.
+
+if [ ! -d "$GIT_DIR" ]; then
+    if [ -z "$1" ]; then
+        APP_NAME=`grep "git@heroku.com" .git/config | sed -E "s/.*heroku.com:(.+)\.git.*/\\1/"`
+    else
+        APP_NAME=$1
+    fi
+
+    if [ -z "$APP_NAME" ]; then
+        echo "Couldn't find a Heroku app in the current directory. Are you sure it is in your git remotes? See https://devcenter.heroku.com/articles/git#creating_a_heroku_remote"
+        echo 
+        echo "If you want to upload a directory that isn't already a Heroku app, pass the app name as an argument. eg:"
+        echo
+        echo "  $ herokup myapp"
+        echo
+        exit 1
+    fi
+
+    echo "Uploading to app \"$APP_NAME\""
+
+    git init
+    git remote add heroku git@heroku.com:$APP_NAME.git
+fi
+
+# Update files already in index
+git add -f -u
+# Add new files
+git add -f !(.git-heroku)
+
+git commit -m "update"
+git push -f heroku master
+
+
+
