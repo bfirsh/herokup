@@ -31,13 +31,30 @@ if [ ! -d "$GIT_DIR" ]; then
     git remote add heroku git@heroku.com:$APP_NAME.git
 fi
 
-# Update files already in index
-git add -f -u
-# Add new files
-git add -f !(.git-heroku)
+# .gitignore-heroku contains file patterns that shouldn't be uploaded to Heroku 
+if [ -e .gitignore-heroku ]; then
+    # Move gitignore out of the way
+    if [ -e .gitignore ]; then
+        mv .gitignore .gitignore.ignore
+    fi
+
+    # Generate our own gitignore
+    cp .gitignore-heroku .gitignore
+    echo ".git-heroku" >> .gitignore
+
+    # Update files already in index
+    git add -u
+    # Add new files
+    git add .
+    
+    mv .gitignore.ignore .gitignore
+else
+    # If we don't have a .gitignore-heroku file, force add everything
+    git add -f -u
+    git add -f !(.git-heroku)
+fi
 
 git commit -m "update"
 git push -f heroku master
-
 
 
